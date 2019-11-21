@@ -1,0 +1,27 @@
+App\Entity\Reservation:
+    type: entity
+    table: app_reservations
+    id:
+        id:
+            type: integer
+            generator:
+                strategy: AUTO
+    fields:
+        reservedSlotsNumber:
+            name: reserved_slots_number
+            type: integer
+            nullable: false
+        dateFrom:
+            type: date
+            name: date_from
+            nullable: false
+        dateTo:
+            type: date
+            name: date_to
+            nullable: false
+        allowedMultipleRooms:
+            name: allowed_multiple_rooms
+            type: boolean
+            nullable: false
+            options:
+                default: false

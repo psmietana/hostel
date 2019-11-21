@@ -1,0 +1,25 @@
+App\Entity\Flat:
+    type: entity
+    table: app_flats
+    id:
+        id:
+            type: integer
+            generator:
+                strategy: AUTO
+    fields:
+        code:
+            type: string
+            length: 15
+            unique: true
+            nullable: false
+        slotsNumber:
+            type: integer
+            name: slots_number
+            nullable: false
+        discountAboveSevenDays:
+            type: integer
+            name: discount_above_seven_days
+            nullable: true
+            options:
+                unsigned: true
+                default: null
