@@ -1,0 +1,24 @@
+App\Entity\FlatsReservations:
+    type: entity
+    table: app_flats_reservations
+    uniqueConstraints:
+        unique_idx:
+            columns: [reservation_id, flat_id]
+    indexes:
+        unique_idx:
+            columns: [reservation_id, flat_id]
+    id:
+        id:
+            type: integer
+            generator:
+                strategy: AUTO
+    fields:
+        reservedSlotsNumber:
+            name: reserved_slots_number
+            type: integer
+            nullable: false
+    manyToOne:
+        reservation:
+            targetEntity: Reservation
+        flat:
+            targetEntity: Flat

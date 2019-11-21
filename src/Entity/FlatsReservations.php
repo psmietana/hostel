@@ -4,14 +4,15 @@ namespace App\Entity;
 
 class FlatsReservations
 {
+    private $id;
     private $reservation;
     private $flat;
-    private $reservedSlots;
+    private $reservedSlotsNumber;
 
-    public function __construct(Reservation $reservation, Flat $flat, int $reservedSlots)
+    public function __construct(Reservation $reservation, Flat $flat, int $reservedSlotsNumber)
     {
         $this->reservation= $reservation;
         $this->flat = $flat;
-        $this->reservedSlots = $reservedSlots;
+        $this->reservedSlotsNumber = $reservedSlotsNumber;
     }
 }

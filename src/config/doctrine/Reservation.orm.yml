@@ -19,8 +19,8 @@ App\Entity\Reservation:
             type: date
             name: date_to
             nullable: false
-        allowedMultipleRooms:
-            name: allowed_multiple_rooms
+        allowedMultipleFlats:
+            name: allowed_multiple_flats
             type: boolean
             nullable: false
             options:
