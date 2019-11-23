@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use League\Tactician\CommandBus;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -12,8 +13,8 @@ class ReservationController extends AbstractController
     /**
      * @Route("/reservation", name="app.reservation.index")
      */
-    public function index(Request $request): JsonResponse
+    public function index(Request $request, CommandBus $commandBus): JsonResponse
     {
-        phpinfo();
+        return JsonResponse::create();
     }
 }

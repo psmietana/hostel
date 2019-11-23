@@ -1,0 +1,4 @@
+services:
+    App\Controller\ReservationController:
+        arguments:
+            - '@tactician.commandbus'
