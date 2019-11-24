@@ -17,6 +17,12 @@ App\Entity\FlatsReservations:
             name: reserved_slots_number
             type: integer
             nullable: false
+        price:
+            name: price
+            type: decimal
+            nullable: true
+            precision: 10
+            scale: 2
     manyToOne:
         reservation:
             targetEntity: Reservation
