@@ -1,4 +1,4 @@
 services:
-    App\Controller\ReservationController:
-        arguments:
-            - '@tactician.commandbus'
+    App\Commands\Handlers\ReserveFlatHandler:
+        tags:
+            - { name: tactician.handler, command: App\Commands\ReserveFlatCommand }
