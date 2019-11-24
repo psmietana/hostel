@@ -5,7 +5,9 @@ namespace App\Commands\Handlers;
 use App\Commands\ReserveMultipleFlatsCommand;
 use App\Entity\Flat;
 use App\Entity\FlatsReservations;
+use App\Entity\Reservation;
 use App\Exceptions\NegativeReservationsSlotsNotAllowedException;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManager;
 
 class ReserveMultipleFlatsHandler
@@ -33,14 +35,29 @@ class ReserveMultipleFlatsHandler
             throw new \InvalidArgumentException('Data końca rezerwacji nie może być wcześniejsza od początku rezerwacji');
         }
 
-        if (true === $command->areAllowedMultipleFlats()) {
-            $flats = $this->findMultipleFlats();
-        } else {
-            $flats = [$this->findSingleFlat()];
+        $flats = new \ArrayIterator($this->findMultipleFlats());
+        while ($peopleNumber > 0) {
+            $flat = $flats->current();
+            $availableSlots = $flat[0]->getSlotsNumber() - $flat['flatReservedSlotsNumber'];
+            $peopleNumber -= min($availableSlots, $peopleNumber);
+
+            $reservation = new Reservation($peopleNumber, $dateFrom, $dateTo, true);
+            $this->entityManager->persist($reservation);
+            $flatReservation = new FlatsReservations($reservation, $flat, $availableSlots);
+            $this->entityManager->persist($flatReservation);
+
+            $flats->next();
+            if (false === $flats->valid() && $peopleNumber > 0) {
+                throw new \LogicException('Za mało wolnych slotów');
+            }
         }
+        $this->entityManager->flush();
     }
 
-    private function findMultipleFlats(int $peopleNumber): array
+    /**
+     * @return Flat[]
+     */
+    private function findMultipleFlats(): array
     {
         return $this->entityManager->getRepository(Flat::class)
             ->createQueryBuilder('f')
@@ -50,20 +67,5 @@ class ReserveMultipleFlatsHandler
             ->orderBy('(f.slotsNumber - flatReservedSlotsNumber) DESC')
             ->getQuery()
             ->getResult();
-    }
-
-    private function findSingleFlat(int $peopleNumber)
-    {
-        return $this->entityManager->getRepository(Flat::class)
-            ->createQueryBuilder('f')
-            ->select('f, SUM(COALESCE(fr.reservedSlotsNumber, 0)) as flatReservedSlotsNumber')
-            ->leftJoin(FlatsReservations::class, 'fr', 'WITH', 'fr.flat = f.id')
-            ->groupBy('fr.flat')
-            ->having('(f.slotsNumber - flatReservedSlotsNumber) > :neededSlotsNumber')
-            ->setParameter('neededSlotsNumber', $peopleNumber)
-            ->orderBy('(f.slotsNumber - flatReservedSlotsNumber) DESC')
-            ->setMaxResults(1)
-            ->getQuery()
-            ->getOneOrNullResult();
     }
 }
