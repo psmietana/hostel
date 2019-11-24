@@ -22,7 +22,7 @@ class ReserveMultipleFlatsHandler
     public function handle(ReserveMultipleFlatsCommand $command): void
     {
         if (0 >= $peopleNumber = $command->getPeopleNumber()) {
-            throw new NegativeReservationsSlotsNotAllowedException('Ujemna liczba osób');
+            throw new NegativeReservationsSlotsNotAllowedException('Rezerwacja dla co najmniej 1 osoby');
         }
         $dateFromString = $command->getDateFrom();
         $dateToString = $command->getDateTo();
@@ -61,10 +61,13 @@ class ReserveMultipleFlatsHandler
     {
         return $this->entityManager->getRepository(Flat::class)
             ->createQueryBuilder('f')
-            ->select('f, SUM(COALESCE(fr.reservedSlotsNumber, 0)) as flatReservedSlotsNumber')
+            ->select(
+                'f',
+                '(f.slotsNumber - SUM(COALESCE(fr.reservedSlotsNumber, 0))) as HIDDEN availableSlots'
+            )
             ->leftJoin(FlatsReservations::class, 'fr', 'WITH', 'fr.flat = f.id')
-            ->groupBy('fr.flat')
-            ->orderBy('(f.slotsNumber - flatReservedSlotsNumber) DESC')
+            ->groupBy('f.id')
+            ->orderBy('availableSlots', 'DESC')
             ->getQuery()
             ->getResult();
     }

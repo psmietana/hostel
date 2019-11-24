@@ -49,7 +49,7 @@ class ReservationController extends AbstractController
             $connection->rollback();
 
             return JsonResponse::create([
-                'error' => $exception->getMessage()
+                'error' => 'Internal error'
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }

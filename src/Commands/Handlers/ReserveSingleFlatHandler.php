@@ -3,6 +3,7 @@
 namespace App\Commands\Handlers;
 
 use App\Commands\ReserveMultipleFlatsCommand;
+use App\Commands\ReserveSingleFlatCommand;
 use App\Entity\Flat;
 use App\Entity\FlatsReservations;
 use App\Entity\Reservation;
@@ -18,7 +19,7 @@ class ReserveSingleFlatHandler
         $this->entityManager = $entityManager;
     }
 
-    public function handle(ReserveMultipleFlatsCommand $command): void
+    public function handle(ReserveSingleFlatCommand $command): void
     {
         if (0 >= $peopleNumber = $command->getPeopleNumber()) {
             throw new NegativeReservationsSlotsNotAllowedException('Ujemna liczba osób');
@@ -34,6 +35,7 @@ class ReserveSingleFlatHandler
             throw new \InvalidArgumentException('Data końca rezerwacji nie może być wcześniejsza od początku rezerwacji');
         }
 
+
         if (null === $flat = $this->findSingleFlat($peopleNumber)) {
             return;
         }
@@ -45,16 +47,20 @@ class ReserveSingleFlatHandler
         $this->entityManager->flush();
     }
 
-    private function findSingleFlat(int $peopleNumber)
+    private function findSingleFlat(int $peopleNumber): ?Flat
     {
-        return $this->entityManager->getRepository(Flat::class)
+        return $this->getDoctrine()->getManager()->getRepository(Flat::class)
             ->createQueryBuilder('f')
-            ->select('f, SUM(COALESCE(fr.reservedSlotsNumber, 0)) as flatReservedSlotsNumber')
+            ->select(
+                'f',
+                'SUM(COALESCE(fr.reservedSlotsNumber, 0)) as HIDDEN flatReservedSlotsNumber',
+                '(f.slotsNumber - SUM(COALESCE(fr.reservedSlotsNumber, 0))) as HIDDEN availableSlots'
+            )
             ->leftJoin(FlatsReservations::class, 'fr', 'WITH', 'fr.flat = f.id')
-            ->groupBy('fr.flat')
+            ->groupBy('f.id')
             ->having('(f.slotsNumber - flatReservedSlotsNumber) > :neededSlotsNumber')
             ->setParameter('neededSlotsNumber', $peopleNumber)
-            ->orderBy('(f.slotsNumber - flatReservedSlotsNumber) DESC')
+            ->orderBy('availableSlots', 'DESC')
             ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult();

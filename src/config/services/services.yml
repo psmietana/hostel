@@ -1,7 +1,16 @@
 services:
-    App\Commands\Handlers\ReserveSingleFlatHandler:
+    app.commands.handlers.reserveSingleFlatHandler:
+        class: App\Commands\Handlers\ReserveSingleFlatHandler
         tags:
-            - { name: tactician.handler, command: App\Commands\ReserveSingleFlatHandler }
-    App\Commands\Handlers\ReserveMultipleFlatsHandler:
+            - { name: tactician.handler, command: App\Commands\ReserveSingleFlatCommand }
+        public: true
+        arguments:
+            - '@doctrine.orm.entity_manager'
+
+    app.commands.handlers.reserveMultipleFlatsHandler:
+        class: App\Commands\Handlers\ReserveMultipleFlatsHandler
         tags:
             - { name: tactician.handler, command: App\Commands\ReserveMultipleFlatsCommand }
+        public: true
+        arguments:
+            - '@doctrine.orm.entity_manager'
