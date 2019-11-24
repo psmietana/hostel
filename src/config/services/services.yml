@@ -1,4 +1,7 @@
 services:
-    App\Commands\Handlers\ReserveFlatHandler:
+    App\Commands\Handlers\ReserveSingleFlatHandler:
         tags:
-            - { name: tactician.handler, command: App\Commands\ReserveFlatCommand }
+            - { name: tactician.handler, command: App\Commands\ReserveSingleFlatHandler }
+    App\Commands\Handlers\ReserveMultipleFlatsHandler:
+        tags:
+            - { name: tactician.handler, command: App\Commands\ReserveMultipleFlatsCommand }

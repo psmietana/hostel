@@ -3,23 +3,20 @@ declare(strict_types=1);
 
 namespace App\Commands;
 
-class ReserveFlatCommand
+class ReserveMultipleFlatsCommand
 {
     private $slotsNumber;
     private $dateFrom;
     private $dateTo;
-    private $allowedMultipleFlats;
 
     public function __construct(
         int $peopleNumber,
         string $dateFrom,
-        string $dateTo,
-        bool $allowedMultipleFlats = false
+        string $dateTo
     ) {
         $this->slotsNumber = $peopleNumber;
         $this->dateFrom = $dateFrom;
         $this->dateTo = $dateTo;
-        $this->allowedMultipleFlats = $allowedMultipleFlats;
     }
 
     public function getPeopleNumber(): int
@@ -35,10 +32,5 @@ class ReserveFlatCommand
     public function getDateTo(): string
     {
         return $this->dateTo;
-    }
-
-    public function areAllowedMultipleFlats(): bool
-    {
-        return $this->allowedMultipleFlats;
     }
 }

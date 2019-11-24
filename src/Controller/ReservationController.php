@@ -2,7 +2,8 @@
 
 namespace App\Controller;
 
-use App\Commands\ReserveFlatCommand;
+use App\Commands\ReserveMultipleFlatsCommand;
+use App\Commands\ReserveSingleFlatCommand;
 use Doctrine\DBAL\Driver\Connection;
 use League\Tactician\CommandBus;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -20,15 +21,30 @@ class ReservationController extends AbstractController
     {
         $connection->beginTransaction();
         try {
-            $commandBus->handle(new ReserveFlatCommand(
-                (int) $request->get('peopleNumber'),
-                (string) $request->get('dateFrom'),
-                (string) $request->get('dateTo'),
-                (bool) $request->get('allowedMultipleFlats')
-            ));
+            $allowedMultipleFlats = (bool) $request->get('allowedMultipleFlats');
+            if ($allowedMultipleFlats) {
+                $commandBus->handle(new ReserveMultipleFlatsCommand(
+                    (int) $request->get('peopleNumber'),
+                    (string) $request->get('dateFrom'),
+                    (string) $request->get('dateTo')
+                ));
+            } else {
+                $commandBus->handle(new ReserveSingleFlatCommand(
+                    (int) $request->get('peopleNumber'),
+                    (string) $request->get('dateFrom'),
+                    (string) $request->get('dateTo')
+                ));
+            }
+
             $connection->commit();
 
             return JsonResponse::create([], Response::HTTP_CREATED);
+        } catch (\InvalidArgumentException $exception) {
+            $connection->rollback();
+
+            return JsonResponse::create([
+                'error' => $exception->getMessage()
+            ], Response::HTTP_BAD_REQUEST);
         } catch (\Exception $exception) {
             $connection->rollback();
 

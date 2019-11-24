@@ -12,8 +12,8 @@ class Reservation
 
     public function __construct(
         int $reservedSlotsNumber,
-        \DateTime $dateFrom,
-        \DateTime $dateTo,
+        \DateTimeImmutable $dateFrom,
+        \DateTimeImmutable $dateTo,
         bool $allowedMultipleFlats = false
     ) {
         $this->reservedSlotsNumber = $reservedSlotsNumber;
@@ -27,12 +27,12 @@ class Reservation
         return $this->reservedSlotsNumber;
     }
 
-    public function getDateFrom(): \DateTime
+    public function getDateFrom(): \DateTimeImmutable
     {
         return $this->dateFrom;
     }
 
-    public function getDateTo(): \DateTime
+    public function getDateTo(): \DateTimeImmutable
     {
         return $this->dateTo;
     }
